@@ -11,12 +11,16 @@ export function Ground(){
     const gridmap = useLoader(TextureLoader, "textures/grid.png")
     return (
         <>
-            <axesHelper />
+            {/* <axesHelper /> */}
+            <mesh rotation={[-Math.PI/2,0,0]} receiveShadow>
+                <planeGeometry  args={[15,15]}/>
+                {/* <meshBasicMaterial color="#add8e6" /> */}
+                <shadowMaterial color="#171717" transparent opacity={0.5}/>
+            </mesh>
             <mesh rotation={[-Math.PI/2,0,0]}>
                 <planeGeometry  args={[15,15]}/>
-                <meshBasicMaterial 
-                    map={gridmap}
-                />
+                <meshBasicMaterial color="#add8e6" />
+                {/* <shadowMaterial color="#171717"/> */}
             </mesh>
         </>
     )
