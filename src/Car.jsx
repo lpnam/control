@@ -36,27 +36,32 @@ export function Car({ thirdPersonControl }){
     useFrame((state, delta) => {
         if(!thirdPersonControl) return;
 
-        const position = new Vector3(0,0,0);
+        const t = 1.0 - Math.pow(0.001, delta);
+
+        const position = new Vector3();
         position.setFromMatrixPosition(chassisBody.current.matrixWorld);
 
         const quaternion = new Quaternion(0,0,0,0);
         quaternion.setFromRotationMatrix(chassisBody.current.matrixWorld);
 
-        const direction = new Vector3(0,0,1);
-        direction.applyQuaternion(quaternion);
-        direction.normalize();
-
-        const t = 1.0 - Math.pow(0.001, delta);
-        // const t = 5 * delta;
-
-        // let cameraPosition = position.clone().add(direction.multiplyScalar(1).add(new Vector3(0,0.5,0)));
-        let cameraPosition = state.camera.position.lerp(
-          position.clone().add(direction.multiplyScalar(1).add(new Vector3(0,0.5,0))), 
+        const wDir = new Vector3(0,0,1);
+        wDir.applyQuaternion(quaternion);
+        wDir.normalize();
+        
+        const cameraOffset = wDir.multiplyScalar(1).add(new Vector3(0, 0.5, 0));
+        const cameraPosition = state.camera.position.lerp(
+          position.clone().add(cameraOffset), 
           t
         );
 
+        const currentLookAt = state.camera.target || position.clone();
+        currentLookAt.lerp(position, t);
+
         state.camera.position.copy(cameraPosition);
-        state.camera.lookAt(position);
+        state.camera.lookAt(currentLookAt);
+
+        // Update the camera's target for the next frame
+        state.camera.target = currentLookAt.clone();
     });
 
     return (
