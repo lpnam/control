@@ -3,8 +3,11 @@ import { useRef } from "react";
 import { useWheels } from "./useWheels";
 import { WheelDebug } from "./WheelDebug";
 import { useControls } from "./useControls";
+import { useFrame } from "@react-three/fiber";
+import { Quaternion, Vector3 } from "three";
 
-export function Car(){
+
+export function Car({ thirdPersonControl }){
     const position = [-1.5, 0.5, 3];
     const width = 0.15;
     const height = 0.07;
@@ -29,6 +32,32 @@ export function Car(){
     }), useRef(null));
 
     useControls(vehicleApi, chassisApi);
+
+    useFrame((state, delta) => {
+        if(!thirdPersonControl) return;
+
+        const position = new Vector3(0,0,0);
+        position.setFromMatrixPosition(chassisBody.current.matrixWorld);
+
+        const quaternion = new Quaternion(0,0,0,0);
+        quaternion.setFromRotationMatrix(chassisBody.current.matrixWorld);
+
+        const direction = new Vector3(0,0,1);
+        direction.applyQuaternion(quaternion);
+        direction.normalize();
+
+        const t = 1.0 - Math.pow(0.001, delta);
+        // const t = 5 * delta;
+
+        // let cameraPosition = position.clone().add(direction.multiplyScalar(1).add(new Vector3(0,0.5,0)));
+        let cameraPosition = state.camera.position.lerp(
+          position.clone().add(direction.multiplyScalar(1).add(new Vector3(0,0.5,0))), 
+          t
+        );
+
+        state.camera.position.copy(cameraPosition);
+        state.camera.lookAt(position);
+    });
 
     return (
         <group ref={vehicle}>

@@ -6,7 +6,7 @@ export const useControls = (vehicalApi, chassicApi) => {
     useEffect(() => {
         const keyDownPressHandle = (e) => {
             setControls((controls) => ({ ...controls, [e.key.toLowerCase()]: true }));
-            console.log(controls);
+            // console.log(controls);
         }
         const keyUpPressHandle = (e) => {
             setControls((controls) => ({ ...controls, [e.key.toLowerCase()]: false }));
